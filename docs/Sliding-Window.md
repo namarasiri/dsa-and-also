@@ -21,7 +21,7 @@ It helps optimize brute-force `O(n²)` algorithms to `O(n)` by reusing partial r
 
 ---
 
-## 🪟 3. Fixed-Size Window — `O(n)`
+## 🪟 3. Fixed-Size Window — `O(n)` - Template #1
 
 ```java
 // code/file: code/FixedWindow.java
@@ -53,7 +53,7 @@ public class FixedWindow {
 
 ---
 
-## ⚡ 4. Dynamic-Size Window (Expanding + Contracting)
+## ⚡ 4. Dynamic-Size Window (Expanding + Contracting) - Template #2
 
 ```java
 // code/file: code/DynamicWindow.java
@@ -86,7 +86,7 @@ public class DynamicWindow {
 
 ---
 
-## 💧 5. Variation — Minimum Window Substring
+## 💧 5.1 Variation — Minimum Window Substring - Template #3
 
 ```java
 // code/file: code/MinWindow.java
@@ -128,6 +128,118 @@ public class MinWindow {
 }
 ```
 
+```java
+public class MinSubArraySum {
+    public static void main(String[] args) {
+        int[] arr = {2, 1, 5, 2, 3, 2};
+        int target = 7;
+
+        int left = 0, windowSum = 0;
+        int minLength = Integer.MAX_VALUE;
+
+        for (int right = 0; right < arr.length; right++) {
+            windowSum += arr[right];
+
+            while (windowSum >= target) {
+                minLength = Math.min(minLength, right - left + 1);
+                windowSum -= arr[left++];
+            }
+        }
+
+        System.out.println("Smallest subarray length: " + minLength);
+    }
+}
+```
+---
+## 🧮 5.2 Variation — Longest Substring with K Distinct Characters - KDistinct pattern
+```java
+import java.util.*;
+
+public class KDistinct {
+    public static void main(String[] args) {
+        String s = "araaci";
+        int k = 2;
+
+        Map<Character, Integer> freq = new HashMap<>();
+        int left = 0, maxLen = 0;
+
+        for (int right = 0; right < s.length(); right++) {
+            freq.put(s.charAt(right), freq.getOrDefault(s.charAt(right), 0) + 1);
+
+            while (freq.size() > k) {
+                char leftChar = s.charAt(left++);
+                freq.put(leftChar, freq.get(leftChar) - 1);
+                if (freq.get(leftChar) == 0) freq.remove(leftChar);
+            }
+
+            maxLen = Math.max(maxLen, right - left + 1);
+        }
+
+        System.out.println("Longest substring with " + k + " distinct chars = " + maxLen);
+    }
+}
+
+```
+---
+## 📈  5.3 Variation — Maximum of Each Sliding Window (Deque Method) - Advanced pattern
+```java
+import java.util.*;
+
+public class SlidingWindowMax {
+    public static int[] maxSlidingWindow(int[] nums, int k) {
+        Deque<Integer> dq = new ArrayDeque<>();
+        int[] res = new int[nums.length - k + 1];
+        int idx = 0;
+
+        for (int i = 0; i < nums.length; i++) {
+            while (!dq.isEmpty() && dq.peekFirst() <= i - k)
+                dq.pollFirst();
+
+            while (!dq.isEmpty() && nums[dq.peekLast()] < nums[i])
+                dq.pollLast();
+
+            dq.offerLast(i);
+
+            if (i >= k - 1)
+                res[idx++] = nums[dq.peekFirst()];
+        }
+        return res;
+    }
+
+    public static void main(String[] args) {
+        int[] arr = {1, 3, -1, -3, 5, 3, 6, 7};
+        System.out.println(Arrays.toString(maxSlidingWindow(arr, 3)));
+    }
+}
+
+```
+---
+## 📈  5.4 Variation — Maximum of Each Sliding Window (Monotonic Method) - Advanced pattern
+```java
+import java.util.*;
+
+public class SlidingWindowMax {
+    public static int[] maxSlidingWindow(int[] nums, int k) {
+        Deque<Integer> dq = new ArrayDeque<>();
+        int[] res = new int[nums.length - k + 1];
+        int idx = 0;
+
+        for (int i = 0; i < nums.length; i++) {
+            while (!dq.isEmpty() && dq.peekFirst() <= i - k)
+                dq.pollFirst();
+            while (!dq.isEmpty() && nums[dq.peekLast()] < nums[i])
+                dq.pollLast();
+
+            dq.offerLast(i);
+
+            if (i >= k - 1)
+                res[idx++] = nums[dq.peekFirst()];
+        }
+        return res;
+    }
+}
+
+```
 ---
 
 ## 🧮 6. Pattern Recognition Table
@@ -139,6 +251,15 @@ public class MinWindow {
 | Min window substring | Missing required chars | All chars present | Map count |
 | Longest K distinct | ≤ K distinct | > K distinct | Map size |
 | Target sum subarray | Sum < target | Sum ≥ target | Sum |
+
+| Question Mentions ...            | Think of ...             | Use               |
+| -------------------------------- | ------------------------ | ----------------- |
+| “Sum”, “Average”, “K elements”   | Fixed Window             | Template #1       |
+| “Longest Substring”, “No Repeat” | Variable + Map           | Template #2       |
+| “Smallest Subarray ≥ Target”     | Shrink on sum ≥ target   | Template #3       |
+| “At most K distinct”             | Variable + Frequency Map | KDistinct pattern |
+| “Max of each window”             | Deque / Monotonic Queue  | Advanced pattern  |
+
 
 ---
 
