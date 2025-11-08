@@ -55,30 +55,49 @@ public class FixedSlidingWindow {
 ## ⚡ 4. Dynamic-Size Window (Expanding + Contracting) - Template #2
 
 ```java
-// code/file: code/DynamicWindow.java
-/**
- * Find length of longest substring without repeating characters
- * Input: "abcabcbb" -> Output: 3 ("abc")
- */
-import java.util.*;
-
-public class DynamicWindow {
-    public static int longestUniqueSubstring(String s) {
-        Set<Character> seen = new HashSet<>();
-        int left = 0, maxLen = 0;
-
-        for (int right = 0; right < s.length(); right++) {
-            while (seen.contains(s.charAt(right))) {
-                seen.remove(s.charAt(left++));
-            }
-            seen.add(s.charAt(right));
-            maxLen = Math.max(maxLen, right - left + 1);
+ /**
+     * Find length of longest substring without repeating characters
+     * Input: "abcabcbb" -> Output: 3 ("abc")
+     */
+    public int lengthOfLongestSubstring(String s) {
+        if (s == null || s.length() == 0) {
+            return 0;
         }
-        return maxLen;
+
+        // Map to store the last seen index of each character
+        Map<Character, Integer> charIndexMap = new HashMap<>();
+        int maxLength = 0;
+        // Left pointer of the sliding window
+        int windowStart = 0;
+
+        // Iterate through the string with the right pointer
+        for (int windowEnd = 0; windowEnd < s.length(); windowEnd++) {
+            char rightChar = s.charAt(windowEnd);
+
+            // If the character is already in the map, move the windowStart past the last occurrence
+            if (charIndexMap.containsKey(rightChar)) {
+                // Use Math.max to ensure windowStart only moves forward,
+                // in case the repeating character's last index is outside the current window
+                windowStart = Math.max(windowStart, charIndexMap.get(rightChar) + 1);
+            }
+
+            // Update the character's last seen index
+            charIndexMap.put(rightChar, windowEnd);
+
+            // Update the maximum length found so far
+            // Current window size is windowEnd - windowStart + 1
+            maxLength = Math.max(maxLength, windowEnd - windowStart + 1);
+        }
+
+        return maxLength;
     }
 
     public static void main(String[] args) {
-        System.out.println(longestUniqueSubstring("abcabcbb")); // 3
+        DynamicWindow solution = new DynamicWindow();
+        String input = "abcabcbb";
+        int length = solution.lengthOfLongestSubstring(input);
+        System.out.println("Input: \"" + input + "\"");
+        System.out.println("Output: " + length); // Expected output: 3
     }
 }
 ```
